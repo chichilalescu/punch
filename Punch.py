@@ -562,7 +562,8 @@ Punch.py [-h] command [line-number] [filename] [archive-date]
     except PunchCommandError:
         print usage
     except ToDoConfigNotFoundError:
-        print "Error: Could not find configuration file (todo.cfg)"
+        print "Error: Could not find configuration file. Environment \
+variable TODOTXT_CFG_FILE must point to your todo.cfg."
     except ToDoFileNotFoundError:
         print "Error: Could not find todo.txt"
     except TaskFileNotFoundError:
