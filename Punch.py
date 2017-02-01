@@ -566,14 +566,14 @@ License: GPL, http://www.gnu.org/copyleft/gpl.html
 
         parser = OptionParser(usage=usage, version=version)
         optlist, args = parser.parse_args()
-        if ((len(args) < 1) :
+        if len(args) < 1 :
             raise PunchCommandError
 
         #experimental: install at todo.sh plugin
         if args[0] == 'install':
             import subprocess
             sys.exit(subprocess.call('ln -s %s %s/%s' %(__file__, 
-                                                        os.environ.get('TODO_ACTIONS_DIR','~/.todo.actions.d', 
+                                                        os.environ.get('TODO_ACTIONS_DIR','~/.todo.actions.d'), 
                                                         'punch')))
         
         #verify if this script has been called as a plugin of todo.sh cli
