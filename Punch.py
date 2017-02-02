@@ -20,11 +20,9 @@ Created on Mar 5, 2009
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 '''
-from os.path import abspath, exists, join
-from os import pathsep, getenv
-import cPickle
-import os.path
-import os
+from __future__ import print_function    # (at top of module)
+from os.path import abspath, exists, join, basename
+from os import pathsep, getenv, environ
 import shutil
 import sys
 import time
@@ -138,9 +136,9 @@ class Punch(object):
 
             # Add the users environment variables to the propDict, unless
             # a value has already been set.
-            for key in os.environ.keys():
+            for key in environ.keys():
                 if key in self.propDict is False:
-                    self.propDict[key] = os.environ[key]
+                    self.propDict[key] = environ[key]
 
         except IOError:
             raise ToDoConfigNotFoundError
@@ -180,7 +178,7 @@ class Punch(object):
         """Open the output file - punch.dat - in the user's TODO_DIR."""
         name = self.resolve(self.propDict['TODO_DIR'] + "/punch.dat")
 
-        if not os.path.exists(name):
+        if not exists(name):
             open(name, 'w').close()
 
         self.punchFile = open(name, mode)
@@ -293,7 +291,7 @@ class Punch(object):
         self.open_punch_file()
         self.punchFile.write(rec)
         self.close_punch_file()
-        print "Start timer on: " + line
+        print("Start timer on: " + line)
 
     def add_in_line(self, line_num):
         """
@@ -314,7 +312,7 @@ class Punch(object):
         self.open_punch_file()
         self.punchFile.write(rec)
         self.close_punch_file()
-        print "Start timer on: " + line
+        print("Start timer on: " + line)
 
     def add_out_line(self):
         """
@@ -334,7 +332,7 @@ class Punch(object):
         self.punchFile.write(rec)
         self.close_punch_file()
 
-        print "Stop timer on: " + lastrec[0]
+        print("Stop timer on: " + lastrec[0])
 
     def execute_in(self):
         """The logic for the 'in' command."""
@@ -402,9 +400,9 @@ class Punch(object):
             lastrec = self.get_last_punch_rec()
             if(len(lastrec) == 2):
                 duration = self.get_duration(lastrec[1], self.get_time())
-                print "Active task: " + lastrec[0] + ' ' + duration
+                print("Active task: " + lastrec[0] + ' ' + duration)
             else:
-                print "No task is active."
+                print("No task is active.")
         else:
             raise PunchCommandError
 
@@ -418,7 +416,7 @@ class Punch(object):
             lines = self.punchFile.readlines()
 
             if(len(lines) == 0):
-                print "There are no tasks in the data file."
+                print("There are no tasks in the data file.")
             else:
                 for line in lines:
                     rec = line.split('\t')
@@ -470,9 +468,9 @@ class Punch(object):
                 dateList.sort()
 
                 for dateKey in dateList:
-                    print dateKey[0:4] + '-' + dateKey[4:6] + '-'\
+                    print(dateKey[0:4] + '-' + dateKey[4:6] + '-'\
                         + dateKey[6:] + ' '\
-                        + self.format_minutes(totalTimeDict[dateKey]) + ':'
+                        + self.format_minutes(totalTimeDict[dateKey]) + ':')
                     taskDict = dateDict[dateKey]
                     taskNoneList = taskDict.keys()
                     taskList = list()
@@ -484,7 +482,7 @@ class Punch(object):
                         sum = 0.0
                         for m in minuteList:
                             sum = sum + m
-                        print '\t' + taskKey + ' ' + self.format_minutes(sum)
+                        print('\t' + taskKey + ' ' + self.format_minutes(sum))
             # Giant else statement ends here. :)
 
             self.close_punch_file()
@@ -568,24 +566,40 @@ License: GPL, http://www.gnu.org/copyleft/gpl.html
 
         parser = OptionParser(usage=usage, version=version)
         optlist, args = parser.parse_args()
+        if len(args) < 1 :
+            raise PunchCommandError
 
+        #experimental: install at todo.sh plugin
+        if args[0] == 'install':
+            import subprocess
+            sys.exit(subprocess.call('ln -s %s %s/%s' %(__file__, 
+                                                        os.environ.get('TODO_ACTIONS_DIR','~/.todo.actions.d'), 
+                                                        'punch')))
+        
+        #verify if this script has been called as a plugin of todo.sh cli
+        if args[0] == basename(__file__):
+            args.pop(0)
+        elif args[0] == 'usage':
+            print(usage)
+            sys.exit(0)
+            
         if ((len(args) < 1) or (len(args) > 3)):
             raise PunchCommandError
         else:
             punch = Punch(optlist, args)
             punch.execute()
     except PunchCommandError:
-        print usage
+        print(usage)
     except ToDoConfigNotFoundError:
-        print "Error: Could not find configuration file. Environment \
-variable TODOTXT_CFG_FILE must point to your todo.cfg."
+        print("Error: Could not find configuration file. Environment \
+variable TODOTXT_CFG_FILE must point to your todo.cfg.")
     except ToDoFileNotFoundError:
-        print "Error: Could not find todo.txt"
+        print("Error: Could not find todo.txt")
     except TaskFileNotFoundError:
-        print "Error: Could not find file."
+        print("Error: Could not find file.")
     except TaskNotFoundError:
-        print "Error: Item number not found in file."
+        print("Error: Item number not found in file.")
     except NoOpenTaskError:
-        print "Error: No incomplete task found."
+        print("Error: No incomplete task found.")
     except DateFormatError:
-        print "Error: Could not translate your input into a date."
+        print("Error: Could not translate your input into a date.")
