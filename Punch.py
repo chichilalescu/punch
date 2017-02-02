@@ -572,17 +572,17 @@ License: GPL, http://www.gnu.org/copyleft/gpl.html
         #experimental: install at todo.sh plugin
         if args[0] == 'install':
             import subprocess
-            sys.exit(subprocess.call('ln -s %s %s/%s' %(__file__, 
-                                                        os.environ.get('TODO_ACTIONS_DIR','~/.todo.actions.d'), 
+            sys.exit(subprocess.call('ln -s %s %s/%s' %(__file__,
+                                                        os.environ.get('TODO_ACTIONS_DIR','~/.todo.actions.d'),
                                                         'punch')))
-        
+
         #verify if this script has been called as a plugin of todo.sh cli
         if args[0] == basename(__file__):
             args.pop(0)
         elif args[0] == 'usage':
             print(usage)
             sys.exit(0)
-            
+
         if ((len(args) < 1) or (len(args) > 3)):
             raise PunchCommandError
         else:
