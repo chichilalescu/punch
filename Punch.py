@@ -157,7 +157,7 @@ class Punch(object):
     def open_todo(self):
         """Open the user's todo.txt file."""
         try:
-            self.taskFile = open(self.resolve(self.propDict['TODO_FILE']), 'U')
+            self.taskFile = open(self.resolve(self.propDict['TODO_FILE']), newline=None)
         except IOError:
             raise ToDoFileNotFoundError
 
@@ -165,7 +165,7 @@ class Punch(object):
         """Open a file given a filename."""
         try:
             name = self.resolve(self.propDict['TODO_DIR'] + "/" + filename)
-            self.taskFile = open(name, 'U')
+            self.taskFile = open(name, newline=None)
         except IOError:
             raise TaskFileNotFoundError
 
